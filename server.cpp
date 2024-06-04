@@ -78,9 +78,7 @@ int main(int argc, char const* argv[]){
                 if(msg_read = read(fd, messageBuffer, MAX_SIZE)){
                     
                 }
-            }
-
-            
+            }    
         }
     }
 
