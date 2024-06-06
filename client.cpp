@@ -1,5 +1,7 @@
 #include "client.h"
 
+#define MAX_SIZE 1024
+
 int main(int argc, const char* argv[]){
 
     srand((unsigned)time(0));
@@ -29,14 +31,35 @@ int main(int argc, const char* argv[]){
     connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
     while(true){
+        bool userMessageSent = false;
 
-        std::string userMessage;
-        std::cin >> userMessage;
+        if(fork() == 0){
+            while(!userMessageSent){
 
-        if(userMessage != ""){
-            char* message = username;
-            strcat(message, ": ");
-            send(client_fd, (char*)message, strlen(message), 0);
+                char buffer[MAX_SIZE];
+                read(client_fd, buffer, sizeof(buffer) - 1);
+                std::cout << buffer << std::endl;
+
+            }
+            exit(0);
+        }
+
+        else{
+            std::string userMessage;
+            std::cin >> userMessage;
+
+            if(userMessage != "" && userMessage != "exit"){
+                char* message = username;
+                strcat(message, ": ");
+                send(client_fd, (char*)message, strlen(message), 0);
+            }
+
+            else if(userMessage == "exit"){
+                break;
+            }
         }
     }
+    
+    std::cout << username << " has disconnected" << std::endl;
+    close(client_fd);
 }

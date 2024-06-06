@@ -75,8 +75,14 @@ int main(int argc, char const* argv[]){
 
             if(FD_ISSET(fd, &read_fds)){
 
-                if(msg_read = read(fd, messageBuffer, MAX_SIZE)){
-                    
+                if(msg_read = read(fd, messageBuffer, MAX_SIZE) == 0){
+                    getpeername(fd, (struct sockaddr*)&address, (socklen_t*)&address);
+                    close(fd);
+                    client_fds[i] = 0;
+                }
+                else{
+                    messageBuffer[msg_read] = '\0';
+                    send(fd, messageBuffer, sizeof(messageBuffer), 0);
                 }
             }    
         }
