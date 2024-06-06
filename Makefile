@@ -4,6 +4,8 @@ LDFLAGS = -lpthread
 G++:=g++
 RM:=rm
 
+all: server client
+
 server.o: server.cpp server.h
 	$(G++) $(EXTRA_CFLAGS) -c server.cpp
 

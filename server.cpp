@@ -23,8 +23,8 @@ int main(int argc, char const* argv[]){
 
     struct sockaddr_in address;
     address.sin_family = AF_INET;
+    address.sin_port = htons(8080);
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
     
     //Bind the server socket
     if(bind(server_fd, (struct sockaddr*)&address, sizeof(address))){
@@ -35,6 +35,8 @@ int main(int argc, char const* argv[]){
     int addr_len = sizeof(address);
     int fd;
     int client_count;
+
+    std::cout << "Server Starting..." << std::endl;
 
     while(1){
         FD_ZERO(&read_fds);
@@ -59,6 +61,9 @@ int main(int argc, char const* argv[]){
         if(FD_ISSET(server_fd, &read_fds)){
             new_socket = accept(server_fd, (struct sockaddr*)&address, 
             (socklen_t*)&addr_len);
+        }
+        else{
+            std::cout << "successful client connection" << std::endl;
         }
 
         for(int i = 0; i < MAX_CLIENTS; ++i){

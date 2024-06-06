@@ -6,14 +6,16 @@ int main(int argc, const char* argv[]){
 
     srand((unsigned)time(0));
 
-    char* username;
+    char* username = (char*)"";
 
-    if(argc <= 1){
+    //segmentation error somewhere in here
+    if(argc >= 2){
         //username = argv[2];
-        strcpy(username, argv[2]);
+        //strcpy(username, argv[2]);
+        username = (char*)argv[2];
     }
     else{
-        char* user = "User";
+        char* user = (char*)"User";
         int userNumber = rand() % 20000;
         char temp[10];
         sprintf(temp, "%d", userNumber);
@@ -25,10 +27,13 @@ int main(int argc, const char* argv[]){
 
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(atoi(argv[1]));
+    serverAddress.sin_port = htons(8080);
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-    connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+    if(connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0){
+        std::cout << "connection failed" << std::endl;
+        exit(0);
+    }
 
     while(true){
         bool userMessageSent = false;
@@ -36,21 +41,25 @@ int main(int argc, const char* argv[]){
         if(fork() == 0){
             while(!userMessageSent){
 
-                char buffer[MAX_SIZE];
-                read(client_fd, buffer, sizeof(buffer) - 1);
-                std::cout << buffer << std::endl;
+                char buffer[MAX_SIZE] = {0};
+                
+                if(read(client_fd, buffer, sizeof(buffer) - 1) != 0){
+                    std::cout << buffer << std::endl;
+                }
+                memset(buffer, NULL, sizeof(buffer));
 
             }
             exit(0);
         }
 
         else{
-            std::string userMessage;
+            char* userMessage;
             std::cin >> userMessage;
 
             if(userMessage != "" && userMessage != "exit"){
                 char* message = username;
                 strcat(message, ": ");
+                strcat(message, userMessage);
                 send(client_fd, (char*)message, strlen(message), 0);
             }
 
