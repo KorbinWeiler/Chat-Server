@@ -25,7 +25,7 @@ int main(int argc, const char* argv[]){
 
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons((int)argv[1]);
+    serverAddress.sin_port = htons(atoi(argv[1]));
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
@@ -59,7 +59,7 @@ int main(int argc, const char* argv[]){
             }
         }
     }
-    
+
     std::cout << username << " has disconnected" << std::endl;
     close(client_fd);
 }
