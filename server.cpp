@@ -8,6 +8,7 @@ int main(int argc, char const* argv[]){
 
     int server_fd, client_fds[MAX_CLIENTS];
     fd_set read_fds;
+    int opt = 1;
     char messageBuffer[MAX_SIZE];
 
     //Reset all clients
@@ -21,22 +22,32 @@ int main(int argc, char const* argv[]){
         exit(EXIT_FAILURE);
     }
 
+    if(setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
+            &opt, sizeof(opt))){
+        perror("setsocket");
+        exit(0);
+    }
+
     struct sockaddr_in address;
     address.sin_family = AF_INET;
-    address.sin_port = htons(8080);
     address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(atoi(argv[1]));
     
     //Bind the server socket
     if(bind(server_fd, (struct sockaddr*)&address, sizeof(address))){
         perror("Bind Failed");
         exit(EXIT_FAILURE);
     }
+    else{
+        std::cout << "Server Starting..." << std::endl;
+        std::cout << "Server listening on port " << argv[1] << std::endl;
+    }
+
+    if(listen(server_fd, 10) < 0);
 
     int addr_len = sizeof(address);
     int fd;
     int client_count;
-
-    std::cout << "Server Starting..." << std::endl;
 
     while(1){
         FD_ZERO(&read_fds);
@@ -62,9 +73,6 @@ int main(int argc, char const* argv[]){
             new_socket = accept(server_fd, (struct sockaddr*)&address, 
             (socklen_t*)&addr_len);
         }
-        else{
-            std::cout << "successful client connection" << std::endl;
-        }
 
         for(int i = 0; i < MAX_CLIENTS; ++i){
             if(client_fds[i] == 0){
@@ -87,6 +95,7 @@ int main(int argc, char const* argv[]){
                 }
                 else{
                     messageBuffer[msg_read] = '\0';
+                    std::cout << messageBuffer << std::endl;
                     send(fd, messageBuffer, sizeof(messageBuffer), 0);
                 }
             }    

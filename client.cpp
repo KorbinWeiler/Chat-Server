@@ -14,7 +14,7 @@ int main(int argc, const char* argv[]){
         //strcpy(username, argv[2]);
         username = (char*)argv[2];
     }
-    else{
+    else{ //seg fault
         char* user = (char*)"User";
         int userNumber = rand() % 20000;
         char temp[10];
@@ -23,14 +23,19 @@ int main(int argc, const char* argv[]){
         username = user;
     }
 
-    int client_fd = socket(AF_INET, SOCK_STREAM, 0);
+    int client_fd;
+    
+    if((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0){
+        perror("Socket failure");
+        exit(0);
+    }
 
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(8080);
+    serverAddress.sin_port = htons(atoi(argv[1]));
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
-    if(connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0){
+    if((connect(client_fd, (struct sockaddr*)&serverAddress, sizeof(serverAddress))) < 0){
         std::cout << "connection failed" << std::endl;
         exit(0);
     }
@@ -44,7 +49,9 @@ int main(int argc, const char* argv[]){
                 char buffer[MAX_SIZE] = {0};
                 
                 if(read(client_fd, buffer, sizeof(buffer) - 1) != 0){
-                    std::cout << buffer << std::endl;
+                    if(buffer != ""){
+                        std::cout << buffer << std::endl;
+                    }
                 }
                 memset(buffer, NULL, sizeof(buffer));
 
@@ -61,6 +68,7 @@ int main(int argc, const char* argv[]){
                 strcat(message, ": ");
                 strcat(message, userMessage);
                 send(client_fd, (char*)message, strlen(message), 0);
+                std::cout <<  "test: " << (char*)message << std::endl;
             }
 
             else if(userMessage == "exit"){
