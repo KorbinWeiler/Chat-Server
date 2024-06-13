@@ -22,6 +22,8 @@ int main(int argc, const char* argv[]){
         strcat(user, temp);
         username = user;
     }
+    char tempUser[MAX_SIZE];
+    strcpy(tempUser, username);
 
     int client_fd;
     
@@ -68,7 +70,7 @@ int main(int argc, const char* argv[]){
                 strcat(message, ": ");
                 strcat(message, userMessage);
                 send(client_fd, (char*)message, strlen(message), 0);
-                std::cout <<  "test: " << (char*)message << std::endl;
+                strncpy(message, tempUser, sizeof(tempUser));
             }
 
             else if(userMessage == "exit"){

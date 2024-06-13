@@ -94,9 +94,11 @@ int main(int argc, char const* argv[]){
                     client_fds[i] = 0;
                 }
                 else{
-                    messageBuffer[msg_read] = '\0';
+                    //messageBuffer[msg_read] = '\0';
                     std::cout << messageBuffer << std::endl;
                     send(fd, messageBuffer, sizeof(messageBuffer), 0);
+                    memset(messageBuffer, '\0', sizeof(messageBuffer));
+                    
                 }
             }    
         }
