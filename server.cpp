@@ -43,13 +43,16 @@ int main(int argc, char const* argv[]){
         std::cout << "Server listening on port " << argv[1] << std::endl;
     }
 
-    if(listen(server_fd, 10) < 0);
+    if(listen(server_fd, 10) < 0){
+        perror("listen");
+        exit(0);
+    }
 
     int addr_len = sizeof(address);
     int fd;
     int client_count;
 
-    while(1){
+    while(1==1){
         FD_ZERO(&read_fds);
 
         FD_SET(server_fd, &read_fds);
@@ -67,20 +70,29 @@ int main(int argc, char const* argv[]){
             }
         }
 
+        std::cout << "activity waiting" << std::endl;
         int activity = select(client_count + 1, &read_fds, NULL, NULL, NULL);
+        std::cout << "activity found" << std::endl;
         int new_socket;
         if(FD_ISSET(server_fd, &read_fds)){
-            new_socket = accept(server_fd, (struct sockaddr*)&address, 
-            (socklen_t*)&addr_len);
-        }
 
-        for(int i = 0; i < MAX_CLIENTS; ++i){
-            if(client_fds[i] == 0){
-                client_fds[i] = new_socket;
-                break;
+            if(new_socket = accept(server_fd, (struct sockaddr*)&address, 
+            (socklen_t*)&addr_len) < 0){
+                perror("accept");
+                exit(0);
+            }
+            else{
+                std::cout << "new connection" << std::endl;
+            }
+
+            for(int i = 0; i < MAX_CLIENTS; ++i){
+                if(client_fds[i] == 0){
+                    client_fds[i] = new_socket;
+                    break;
+                }
             }
         }
-
+        
         for(int i = 0; i < MAX_CLIENTS; ++i){
 
             int msg_read;
@@ -94,14 +106,14 @@ int main(int argc, char const* argv[]){
                     client_fds[i] = 0;
                 }
                 else{
-                    //messageBuffer[msg_read] = '\0';
                     std::cout << messageBuffer << std::endl;
+                    //messageBuffer[msg_read] = '\0';
                     send(fd, messageBuffer, sizeof(messageBuffer), 0);
                     memset(messageBuffer, '\0', sizeof(messageBuffer));
-                    
+                        
                 }
             }    
-        }
+        }     
     }
 
     close(server_fd);

@@ -69,7 +69,14 @@ int main(int argc, const char* argv[]){
                 char* message = username;
                 strcat(message, ": ");
                 strcat(message, userMessage);
-                send(client_fd, (char*)message, strlen(message), 0);
+                std::cout << "test " << message << std::endl;
+                if(send(client_fd, (char*)message, strlen(message), 0) < 0){
+                    perror("message send failure");
+                    std::cout << "message no send " << std::endl;
+                }
+                else{
+                    std::cout << "message sent " << std::endl;
+                }
                 strncpy(message, tempUser, sizeof(tempUser));
             }
 
